@@ -11,10 +11,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +25,6 @@ public class RestaurantService {
     // 음식점 목록 가져오기
     public List<RestaurantListResponseDTO> getRestaurantList() {
         List<Restaurant> restaurants = restaurantRepository.findAllByOrderByRestaurantIdAsc();
-
-        if (restaurants.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "등록된 음식점이 없습니다.");
-        }
 
         List<Long> restaurantIds = restaurants.stream()
                 .map(Restaurant::getRestaurantId)
