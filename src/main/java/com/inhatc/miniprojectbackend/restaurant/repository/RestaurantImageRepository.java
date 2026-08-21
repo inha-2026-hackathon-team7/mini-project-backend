@@ -12,4 +12,6 @@ public interface RestaurantImageRepository extends JpaRepository<RestaurantImage
             RestaurantImageType type,
             Collection<Long> restaurantIds
     );
+
+    List<RestaurantImage> findAllByRestaurantRestaurantIdOrderBySortOrderAsc(Long restaurantId);
 }
