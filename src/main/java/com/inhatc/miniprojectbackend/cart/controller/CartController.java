@@ -1,0 +1,31 @@
+package com.inhatc.miniprojectbackend.cart.controller;
+
+import com.inhatc.miniprojectbackend.cart.dto.CartResponseDTO;
+import com.inhatc.miniprojectbackend.cart.service.CartService;
+import com.inhatc.miniprojectbackend.global.session.SessionCookieManager;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/cart")
+public class CartController {
+
+    private final CartService cartService;
+    private final SessionCookieManager sessionCookieManager;
+
+    // 장바구니 조회
+    @GetMapping
+    public ResponseEntity<CartResponseDTO> getCart(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String sessionId = sessionCookieManager.getOrCreateSessionId(request, response);
+        return ResponseEntity.ok(cartService.getCart(sessionId));
+    }
+}
