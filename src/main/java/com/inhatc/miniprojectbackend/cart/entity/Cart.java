@@ -42,4 +42,13 @@ public class Cart {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    private Cart(String sessionId, Restaurant restaurant) {
+        this.sessionId = sessionId;
+        this.restaurant = restaurant;
+    }
+
+    public static Cart create(String sessionId, Restaurant restaurant) {
+        return new Cart(sessionId, restaurant);
+    }
 }
