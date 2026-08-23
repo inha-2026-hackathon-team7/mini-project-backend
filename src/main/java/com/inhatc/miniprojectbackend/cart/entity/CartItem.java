@@ -46,4 +46,26 @@ public class CartItem {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    private CartItem(Cart cart, Menu menu, int quantity) {
+        this.cart = cart;
+        this.menu = menu;
+        this.quantity = quantity;
+    }
+
+    public static CartItem create(Cart cart, Menu menu, int quantity) {
+        return new CartItem(cart, menu, quantity);
+    }
+
+    public void increaseQuantity(int quantity) {
+        this.quantity += quantity;
+    }
+
+    public void changeQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public boolean belongsTo(Cart cart) {
+        return this.cart.getCartId().equals(cart.getCartId());
+    }
 }
