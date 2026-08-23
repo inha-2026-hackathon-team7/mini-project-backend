@@ -1,6 +1,7 @@
 package com.inhatc.miniprojectbackend.cart.service;
 
 import com.inhatc.miniprojectbackend.cart.dto.CartItemCreateRequestDTO;
+import com.inhatc.miniprojectbackend.cart.dto.CartItemQuantityUpdateRequestDTO;
 import com.inhatc.miniprojectbackend.cart.dto.CartResponseDTO;
 import com.inhatc.miniprojectbackend.cart.entity.Cart;
 import com.inhatc.miniprojectbackend.cart.entity.CartItem;
@@ -49,6 +50,29 @@ public class CartService {
         return getCartResponse(cart);
     }
 
+    // 장바구니 메뉴 수량 변경
+    @Transactional
+    public CartResponseDTO updateCartItemQuantity(
+            String sessionId,
+            Long cartItemId,
+            CartItemQuantityUpdateRequestDTO request
+    ) {
+        Cart cart = cartRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .filter(item -> item.belongsTo(cart))
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
+
+        if (request.quantity() <= 0) {
+            cartItemRepository.delete(cartItem);
+            return getCartResponseOrEmpty(cart);
+        }
+
+        cartItem.changeQuantity(request.quantity());
+
+        return getCartResponse(cart);
+    }
+
     private void validateAddCartItemRequest(CartItemCreateRequestDTO request) {
         if (request.menuId() == null || request.quantity() <= 0) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
@@ -81,5 +105,15 @@ public class CartService {
                 .findAllByCartCartIdOrderByCartItemIdAsc(cart.getCartId());
 
         return CartResponseDTO.from(cart, cartItems);
+    }
+
+    private CartResponseDTO getCartResponseOrEmpty(Cart cart) {
+        if (cartItemRepository.existsByCartCartId(cart.getCartId())) {
+            return getCartResponse(cart);
+        }
+
+        cartRepository.delete(cart);
+
+        return CartResponseDTO.empty();
     }
 }
