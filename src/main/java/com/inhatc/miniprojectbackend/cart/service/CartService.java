@@ -73,6 +73,29 @@ public class CartService {
         return getCartResponse(cart);
     }
 
+    // 장바구니 메뉴 삭제
+    @Transactional
+    public CartResponseDTO removeCartItem(String sessionId, Long cartItemId) {
+        Cart cart = cartRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .filter(item -> item.belongsTo(cart))
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
+
+        cartItemRepository.delete(cartItem);
+
+        return getCartResponseOrEmpty(cart);
+    }
+
+    // 장바구니 전체 삭제
+    @Transactional
+    public CartResponseDTO clearCart(String sessionId) {
+        cartRepository.findBySessionId(sessionId)
+                .ifPresent(cartRepository::delete);
+
+        return CartResponseDTO.empty();
+    }
+
     private void validateAddCartItemRequest(CartItemCreateRequestDTO request) {
         if (request.menuId() == null || request.quantity() <= 0) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);

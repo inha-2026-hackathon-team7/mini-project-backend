@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,5 +61,26 @@ public class CartController {
                 cartItemId,
                 cartItemQuantityUpdateRequestDTO
         ));
+    }
+
+    // 장바구니 메뉴 삭제
+    @DeleteMapping("/items/{cartItemId}")
+    public ResponseEntity<CartResponseDTO> removeCartItem(
+            @PathVariable Long cartItemId,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String sessionId = sessionCookieManager.getOrCreateSessionId(request, response);
+        return ResponseEntity.ok(cartService.removeCartItem(sessionId, cartItemId));
+    }
+
+    // 장바구니 전체 삭제
+    @DeleteMapping
+    public ResponseEntity<CartResponseDTO> clearCart(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String sessionId = sessionCookieManager.getOrCreateSessionId(request, response);
+        return ResponseEntity.ok(cartService.clearCart(sessionId));
     }
 }
