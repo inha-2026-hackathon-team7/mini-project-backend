@@ -10,6 +10,7 @@ import com.inhatc.miniprojectbackend.order.dto.CheckoutResponseDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateRequestDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateResponseDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderDetailResponseDTO;
+import com.inhatc.miniprojectbackend.order.dto.OrderListResponseDTO;
 import com.inhatc.miniprojectbackend.order.entity.Order;
 import com.inhatc.miniprojectbackend.order.entity.OrderItem;
 import com.inhatc.miniprojectbackend.order.entity.OrderPaymentType;
@@ -83,6 +84,14 @@ public class OrderService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
 
         return OrderDetailResponseDTO.from(order, orderItems, payment);
+    }
+
+    // 주문 목록 조회
+    public List<OrderListResponseDTO> getOrders(String sessionId) {
+        return orderRepository.findAllBySessionIdOrderByOrderIdDesc(sessionId)
+                .stream()
+                .map(OrderListResponseDTO::from)
+                .toList();
     }
 
     private Order getOrderOrThrow(String sessionId, Long orderId) {

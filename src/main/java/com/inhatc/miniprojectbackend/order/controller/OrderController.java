@@ -5,9 +5,11 @@ import com.inhatc.miniprojectbackend.order.dto.CheckoutResponseDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateRequestDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateResponseDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderDetailResponseDTO;
+import com.inhatc.miniprojectbackend.order.dto.OrderListResponseDTO;
 import com.inhatc.miniprojectbackend.order.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,5 +57,15 @@ public class OrderController {
     ) {
         String sessionId = sessionCookieManager.getOrCreateSessionId(request, response);
         return ResponseEntity.ok(orderService.getOrderDetail(sessionId, orderId));
+    }
+
+    // 주문 목록 조회
+    @GetMapping
+    public ResponseEntity<List<OrderListResponseDTO>> getOrders(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String sessionId = sessionCookieManager.getOrCreateSessionId(request, response);
+        return ResponseEntity.ok(orderService.getOrders(sessionId));
     }
 }
