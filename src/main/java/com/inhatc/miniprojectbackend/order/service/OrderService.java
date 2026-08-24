@@ -6,6 +6,7 @@ import com.inhatc.miniprojectbackend.cart.repository.CartItemRepository;
 import com.inhatc.miniprojectbackend.cart.repository.CartRepository;
 import com.inhatc.miniprojectbackend.global.exception.BusinessException;
 import com.inhatc.miniprojectbackend.global.exception.ErrorCode;
+import com.inhatc.miniprojectbackend.order.dto.CheckoutResponseDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateRequestDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateResponseDTO;
 import com.inhatc.miniprojectbackend.order.entity.Order;
@@ -15,9 +16,10 @@ import com.inhatc.miniprojectbackend.order.entity.OrderStatus;
 import com.inhatc.miniprojectbackend.order.repository.OrderItemRepository;
 import com.inhatc.miniprojectbackend.order.repository.OrderRepository;
 import com.inhatc.miniprojectbackend.payment.entity.Payment;
+import com.inhatc.miniprojectbackend.payment.entity.PaymentMethod;
 import com.inhatc.miniprojectbackend.payment.entity.PaymentStatus;
 import com.inhatc.miniprojectbackend.payment.repository.PaymentRepository;
-import com.inhatc.miniprojectbackend.restaurant.entity.Restaurant;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,24 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final PaymentRepository paymentRepository;
+
+    // 결제 화면 정보 조회
+    public CheckoutResponseDTO getCheckout(String sessionId) {
+        Cart cart = getCartOrThrow(sessionId);
+        List<CartItem> cartItems = getCartItemsOrThrow(cart);
+        validateOrderableCart(cart, cartItems);
+
+        OrderAmount orderAmount = calculateOrderAmount(cart, cartItems);
+
+        return CheckoutResponseDTO.from(
+                cart,
+                cartItems,
+                orderAmount.subtotal(),
+                orderAmount.deliveryFee(),
+                orderAmount.totalAmount(),
+                getAvailablePaymentMethods()
+        );
+    }
 
     // 주문 생성
     @Transactional
@@ -51,6 +71,12 @@ public class OrderService {
         clearCart(cart);
 
         return OrderCreateResponseDTO.from(order, orderItems, payment);
+    }
+
+    private List<String> getAvailablePaymentMethods() {
+        return Arrays.stream(PaymentMethod.values())
+                .map(PaymentMethod::name)
+                .toList();
     }
 
     private void validateOrderCreateRequest(OrderCreateRequestDTO request) {
