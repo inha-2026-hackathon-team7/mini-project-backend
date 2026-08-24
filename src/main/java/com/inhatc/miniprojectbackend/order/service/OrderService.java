@@ -9,6 +9,7 @@ import com.inhatc.miniprojectbackend.global.exception.ErrorCode;
 import com.inhatc.miniprojectbackend.order.dto.CheckoutResponseDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateRequestDTO;
 import com.inhatc.miniprojectbackend.order.dto.OrderCreateResponseDTO;
+import com.inhatc.miniprojectbackend.order.dto.OrderDetailResponseDTO;
 import com.inhatc.miniprojectbackend.order.entity.Order;
 import com.inhatc.miniprojectbackend.order.entity.OrderItem;
 import com.inhatc.miniprojectbackend.order.entity.OrderPaymentType;
@@ -71,6 +72,23 @@ public class OrderService {
         clearCart(cart);
 
         return OrderCreateResponseDTO.from(order, orderItems, payment);
+    }
+
+    // 주문 상세 조회
+    public OrderDetailResponseDTO getOrderDetail(String sessionId, Long orderId) {
+        Order order = getOrderOrThrow(sessionId, orderId);
+        List<OrderItem> orderItems = orderItemRepository
+                .findAllByOrderOrderIdOrderByOrderItemIdAsc(order.getOrderId());
+        Payment payment = paymentRepository.findByOrderOrderId(order.getOrderId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        return OrderDetailResponseDTO.from(order, orderItems, payment);
+    }
+
+    private Order getOrderOrThrow(String sessionId, Long orderId) {
+        return orderRepository.findByOrderId(orderId)
+                .filter(order -> order.getSessionId().equals(sessionId))
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 
     private List<String> getAvailablePaymentMethods() {
