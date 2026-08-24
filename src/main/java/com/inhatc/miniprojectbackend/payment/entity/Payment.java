@@ -55,4 +55,28 @@ public class Payment {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    private Payment(
+            Order order,
+            String sessionId,
+            PaymentMethod paymentMethod,
+            int paidAmount,
+            PaymentStatus status
+    ) {
+        this.order = order;
+        this.sessionId = sessionId;
+        this.paymentMethod = paymentMethod;
+        this.paidAmount = paidAmount;
+        this.status = status;
+    }
+
+    public static Payment create(
+            Order order,
+            String sessionId,
+            PaymentMethod paymentMethod,
+            int paidAmount,
+            PaymentStatus status
+    ) {
+        return new Payment(order, sessionId, paymentMethod, paidAmount, status);
+    }
 }

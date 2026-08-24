@@ -58,4 +58,31 @@ public class Order {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    private Order(
+            String sessionId,
+            Restaurant restaurant,
+            OrderPaymentType paymentType,
+            OrderStatus status,
+            int requiredPayers,
+            int totalAmount
+    ) {
+        this.sessionId = sessionId;
+        this.restaurant = restaurant;
+        this.paymentType = paymentType;
+        this.status = status;
+        this.requiredPayers = requiredPayers;
+        this.totalAmount = totalAmount;
+    }
+
+    public static Order create(
+            String sessionId,
+            Restaurant restaurant,
+            OrderPaymentType paymentType,
+            OrderStatus status,
+            int requiredPayers,
+            int totalAmount
+    ) {
+        return new Order(sessionId, restaurant, paymentType, status, requiredPayers, totalAmount);
+    }
 }

@@ -41,4 +41,16 @@ public class OrderItem {
 
     @Column(nullable = false)
     private int quantity;
+
+    private OrderItem(Order order, Menu menu, int quantity) {
+        this.order = order;
+        this.menu = menu;
+        this.menuName = menu.getName();
+        this.menuPrice = menu.getPrice();
+        this.quantity = quantity;
+    }
+
+    public static OrderItem create(Order order, Menu menu, int quantity) {
+        return new OrderItem(order, menu, quantity);
+    }
 }
