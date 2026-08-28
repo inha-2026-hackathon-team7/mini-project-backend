@@ -63,13 +63,11 @@
 
 ## 실행 방법
 ```bash
-npm install
-npm run dev        # http://localhost:3000
-```
+docker compose up -d --build
+docker compose exec -i mysql mysql -u appuser -p (docker-compose에 적힌 mysql 패스워드) myapp < db.sql
+docker compose exec -i mysql mysql -u appuser -p (docker-compose에 적힌 mysql 패스워드) myapp < seed.sql
 
-`.env` 에 백엔드 주소를 지정합니다. (백엔드가 실행 중이어야 데이터가 표시됩니다.)
-```
-VITE_API_BASE_URL=http://localhost:8080
+후 프론트엔드에서 접근
 ```
 
 | 스크립트 | 설명 |
